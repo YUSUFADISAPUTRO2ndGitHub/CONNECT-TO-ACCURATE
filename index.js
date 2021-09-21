@@ -969,6 +969,140 @@ app.post('/delete-item', async function (req, res, next) {
       
 })
 
+/*
+    Payments
+*/
+
+app.post('/get-all-payment-term', async function (req, res, next) {
+    let page = req.query.page;
+    var options = {
+        'method': 'GET',
+        'url': `https://public.accurate.id/accurate/api/payment-term/list.do?sp.page=${page}`,
+        'headers': {
+          'Authorization': `Bearer ${access_token}`,
+          'X-Session-ID': `${session}`
+        }
+    };
+    await request(options, async function (error, response) {
+        if (error) {
+            console.log(error);
+            res.send({
+                status: false,
+                reason: error
+            });
+        }else{
+            if(response.body != undefined){
+                let response_body = JSON.parse(response.body);
+                res.send(response_body);
+            }
+        }
+    });
+})
+
+app.post('/get-all-payment-term-with-details', async function (req, res, next) {
+    let page = req.query.page;
+    var options = {
+        'method': 'GET',
+        'url': `https://public.accurate.id/accurate/api/payment-term/list.do?sp.page=${page}`,
+        'headers': {
+          'Authorization': `Bearer ${access_token}`,
+          'X-Session-ID': `${session}`
+        }
+    };
+    await request(options, async function (error, response) {
+        if (error) {
+            console.log(error);
+            res.send({
+                status: false,
+                reason: error
+            });
+        }else{
+            if(response.body != undefined){
+                let response_body = JSON.parse(response.body);
+                let item_data = [];
+                if(response_body.d != undefined){
+                    let i = 0;
+                    for(i; i < response_body.d.length; i++){
+                        item_data.push(await get_payment_term_details(response_body.d[i].id));
+                    }
+                }
+                res.send(item_data);
+            }
+        }
+    });
+})
+
+async function get_payment_term_details(payment_id){
+    return new Promise(async (resolve, reject) => {
+        var options = {
+                'method': 'GET',
+                'url': `https://public.accurate.id/accurate/api/payment-term/detail.do?id=${payment_id}`,
+                'headers': {
+                'Authorization': `Bearer ${access_token}`,
+                'X-Session-ID': `${session}`
+            }
+        }; 
+        await request(options, async function (error, response) {
+            if (error) {
+                console.log(error);
+                resolve(get_payment_term_details(payment_id));
+            }else{
+                resolve(JSON.parse(response.body).d);
+            }
+        });
+    });
+}
+
+app.post('/add-new-payment-term', async function (req, res, next) {
+    let payment_data = req.body.payment_data;
+    var options = {
+        'method': 'POST',
+        'url': `https://public.accurate.id/accurate/api/payment-term/save.do?discDays=${payment_data.discDays}&discPC=${payment_data.discPC}&name=${payment_data.name}&netDays=${payment_data.netDays}&memo=${payment_data.memo}`,
+        'headers': {
+            'X-Session-ID': `${session}`,
+            'Authorization': `Bearer ${access_token}`
+        }
+    };
+    await request(options, async function (error, response) {
+        if (error) {
+            console.log(error);
+            res.send({
+                status: false,
+                reason: error
+            });
+        }else{
+            if(response.body != undefined){
+                res.send(JSON.parse(response.body));
+            }
+        }
+    });
+})
+
+app.post('/edit-payment-term', async function (req, res, next) {
+    let payment_data = req.body.payment_data;
+    var options = {
+        'method': 'POST',
+        'url': `https://public.accurate.id/accurate/api/payment-term/save.do?id=${payment_data.id}&discDays=${payment_data.discDays}&discPC=${payment_data.discPC}&name=${payment_data.name}&netDays=${payment_data.netDays}&memo=${payment_data.memo}`,
+        'headers': {
+            'X-Session-ID': `${session}`,
+            'Authorization': `Bearer ${access_token}`
+        }
+    };
+    await request(options, async function (error, response) {
+        if (error) {
+            console.log(error);
+            res.send({
+                status: false,
+                reason: error
+            });
+        }else{
+            if(response.body != undefined){
+                res.send(JSON.parse(response.body));
+            }
+        }
+    });
+})
+
 app.listen(port_number, function () {
     console.log('CORS-enabled web server listening on port ' + port_number)
 })
