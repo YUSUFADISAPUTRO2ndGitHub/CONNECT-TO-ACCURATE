@@ -239,6 +239,11 @@ app.post('/get-customer-details', async function (req, res, next) {
     await request(options, async function (error, response) {
         if (error) {
             console.log(error);
+            res.send({
+                reason: error,
+                customer_no: customer_no,
+                status: false
+            });
         }else{
             total_page = JSON.parse(response.body).sp.pageCount;
             let i = total_page; //1;
@@ -254,7 +259,7 @@ app.post('/get-customer-details', async function (req, res, next) {
             if(i === 1 && not_found){
                 res.send({
                     customer_no: customer_no,
-                    status: 'Not Found'
+                    status: false
                 });
             }
         }
@@ -562,27 +567,36 @@ app.post('/get-sales-order-details', async function (req, res, next) {
         'method': 'GET',
         'url': `https://public.accurate.id/accurate/api/sales-order/list.do?sp.page=${page}`,
         'headers': {
-        'Authorization': `Bearer ${access_token}`,
-        'X-Session-ID': `${session}`
+            'Authorization': `Bearer ${access_token}`,
+            'X-Session-ID': `${session}`
         }
     };
     await request(options, async function (error, response) {
         if (error) {
             console.log(error);
+            res.send({
+                reason: error,
+                sales_order_number: sales_order_number,
+                status: false
+            });
         }else{
             total_page = JSON.parse(response.body).sp.pageCount;
             let i = 1;
+            let not_found = true;
             for(i ; i <= total_page; i ++){
                 let search_result = await loop_through_sales_orders(i, sales_order_number);
                 if(search_result != false){
                     res.send(search_result);
                     i = total_page;
+                    not_found = false;
                 }
             }
-            res.send({
-                customer_no: customer_no,
-                status: 'Not Found'
-            });
+            if(not_found){
+                res.send({
+                    sales_order_number: sales_order_number,
+                    status: false
+                });
+            }
         }
     });
 })
@@ -645,6 +659,315 @@ async function get_sales_order_details(sales_order_id){
         });
     });
 }
+
+app.post('/delete-sales-order', async function (req, res, next) {
+    let sales_order_number = req.query.sales_order_number;
+    var options = {
+        'method': 'POST',
+        'url': `http://localhost:${port_number}/get-sales-order-details?sales_order_number=${sales_order_number}`,
+        'headers': {
+        }
+    };
+    await request(options, async function (error, response) {
+        if (error) {
+            console.log(error);
+        }else{
+            if(response.body != undefined){
+                if(JSON.parse(response.body).id != undefined){
+                    let sales_order_information = JSON.parse(response.body);
+                    var options = {
+                        'method': 'DELETE',
+                        'url': `https://public.accurate.id/accurate/api/sales-order/delete.do?id=${sales_order_information.id}`,
+                        'headers': {
+                            'Authorization': `Bearer ${access_token}`,
+                            'X-Session-ID': `${session}`
+                        }
+                    };
+                    await request(options, async function (error, response) {
+                        if (error) {
+                            console.log(error);
+                        }else{
+                            res.send(JSON.parse(response.body));
+                        }
+                    });
+                }else{
+                    res.send({
+                        status: false,
+                        reason: "Sales order is not found in Accurate"
+                    });
+                }
+            }else{
+                res.send({
+                    status: false,
+                    reason: "Sales order is not found in Accurate"
+                });
+            }
+        }
+    });
+      
+})
+
+/*
+    Products
+*/
+
+app.post('/get-all-items', async function (req, res, next) {
+    let page = req.query.page;
+    var options = {
+        'method': 'GET',
+        'url': `https://public.accurate.id/accurate/api/item/list.do?sp.page=${page}`,
+        'headers': {
+          'Authorization': `Bearer ${access_token}`,
+          'X-Session-ID': `${session}`
+        }
+    };
+    await request(options, async function (error, response) {
+        if (error) {
+            console.log(error);
+            res.send({
+                status: false,
+                reason: error
+            });
+        }else{
+            if(response.body != undefined){
+                let response_body = JSON.parse(response.body);
+                res.send(response_body);
+            }
+        }
+    });
+})
+
+app.post('/get-all-items-with-details', async function (req, res, next) {
+    let page = req.query.page;
+    var options = {
+        'method': 'GET',
+        'url': `https://public.accurate.id/accurate/api/item/list.do?sp.page=${page}`,
+        'headers': {
+          'Authorization': `Bearer ${access_token}`,
+          'X-Session-ID': `${session}`
+        }
+    };
+    await request(options, async function (error, response) {
+        if (error) {
+            console.log(error);
+            res.send({
+                status: false,
+                reason: error
+            });
+        }else{
+            if(response.body != undefined){
+                let response_body = JSON.parse(response.body);
+                let item_data = [];
+                if(response_body.d != undefined){
+                    let i = 0;
+                    for(i; i < response_body.d.length; i++){
+                        item_data.push(await get_item_details(response_body.d[i].id));
+                    }
+                }
+                res.send(item_data);
+            }
+        }
+    });
+})
+
+async function get_item_details(item_id){
+    return new Promise(async (resolve, reject) => {
+        var options = {
+                'method': 'GET',
+                'url': `https://public.accurate.id/accurate/api/item/detail.do?id=${item_id}`,
+                'headers': {
+                'Authorization': `Bearer ${access_token}`,
+                'X-Session-ID': `${session}`
+            }
+        }; 
+        await request(options, async function (error, response) {
+            if (error) {
+                console.log(error);
+                resolve(get_item_details(item_id));
+            }else{
+                resolve(JSON.parse(response.body).d);
+            }
+        });
+    });
+}
+
+app.post('/add-new-item', async function (req, res, next) {
+    let item_data = req.body.item_data;
+    var options = {
+        'method': 'POST',
+        'url': `https://public.accurate.id/accurate/api/item/save.do?itemType=${item_data.itemType}&name=${item_data.name}&itemCategoryName=${item_data.itemCategoryName}&no=${item_data.no}&notes=${item_data.notes}&unitPrice=${item_data.unitPrice}`,
+        'headers': {
+            'X-Session-ID': `${session}`,
+            'Authorization': `Bearer ${access_token}`
+        }
+    };
+    await request(options, async function (error, response) {
+        if (error) {
+            console.log(error);
+            res.send({
+                status: false,
+                reason: error
+            });
+        }else{
+            if(response.body != undefined){
+                res.send(JSON.parse(response.body));
+            }
+        }
+    });
+})
+
+app.post('/edit-item', async function (req, res, next) {
+    let item_data = req.body.item_data;
+    var options = {
+        'method': 'POST',
+        'url': `https://public.accurate.id/accurate/api/item/save.do?id=${item_data.id}&itemType=${item_data.itemType}&name=${item_data.name}&itemCategoryName=${item_data.itemCategoryName}&no=${item_data.no}&notes=${item_data.notes}&unitPrice=${item_data.unitPrice}`,
+        'headers': {
+            'X-Session-ID': `${session}`,
+            'Authorization': `Bearer ${access_token}`
+        }
+    };
+    await request(options, async function (error, response) {
+        if (error) {
+            console.log(error);
+            res.send({
+                status: false,
+                reason: error
+            });
+        }else{
+            if(response.body != undefined){
+                res.send(JSON.parse(response.body));
+            }
+        }
+    });
+})
+
+app.post('/get-item-details', async function (req, res, next) {
+    let item_no = req.query.item_no;
+    let page = 1;
+    let total_page = 0;
+    var options = {
+        'method': 'GET',
+        'url': `https://public.accurate.id/accurate/api/item/list.do?sp.page=${page}`,
+        'headers': {
+            'Authorization': `Bearer ${access_token}`,
+            'X-Session-ID': `${session}`
+        }
+    };
+    await request(options, async function (error, response) {
+        if (error) {
+            console.log(error);
+            res.send({
+                reason: error,
+                item_no: item_no,
+                status: false
+            });
+        }else{
+            total_page = JSON.parse(response.body).sp.pageCount;
+            let i = total_page;
+            let not_found = true;
+            for(i ; i >= 1; i --){
+                let search_result = await loop_through_items(i, item_no);
+                if(search_result != false){
+                    res.send(search_result);
+                    i = 1;
+                    not_found = false;
+                }
+            }
+            if(not_found){
+                res.send({
+                    item_no: item_no,
+                    status: false
+                });
+            }
+        }
+    });
+})
+
+async function loop_through_items(page, item_no){
+    return new Promise(async (resolve, reject) => {
+        var options = {
+            'method': 'GET',
+            'url': `https://public.accurate.id/accurate/api/item/list.do?sp.page=${page}`,
+            'headers': {
+                'Authorization': `Bearer ${access_token}`,
+                'X-Session-ID': `${session}`
+            }
+        };
+        await request(options, async function (error, response) {
+            if (error) {
+                console.log(error);
+                resolve(await loop_through_items(page, item_no));
+            }else{
+                if(response.body != undefined){
+                    let response_body = JSON.parse(response.body);
+                    if(response_body.d != undefined){
+                        let i = 0;
+                        for(i; i < response_body.d.length; i++){
+                            let item_information = (await get_item_details(response_body.d[i].id));
+                            console.log(item_information.no);
+                            if(item_no === item_information.no){
+                                resolve(item_information);
+                                i = response_body.d.length;
+                            }
+                        }
+                        resolve(false);
+                    }else{
+                        resolve(false);
+                    }
+                }else{
+                    resolve(false);
+                }
+            }
+        });
+    });
+}
+
+app.post('/delete-item', async function (req, res, next) {
+    let item_no = req.query.item_no;
+    var options = {
+        'method': 'POST',
+        'url': `http://localhost:${port_number}/get-item-details?item_no=${item_no}`,
+        'headers': {
+        }
+    };
+    await request(options, async function (error, response) {
+        if (error) {
+            console.log(error);
+        }else{
+            if(response.body != undefined){
+                if(JSON.parse(response.body).id != undefined){
+                    let item_information = JSON.parse(response.body);
+                    var options = {
+                        'method': 'DELETE',
+                        'url': `https://public.accurate.id/accurate/api/item/delete.do?id=${item_information.id}`,
+                        'headers': {
+                            'Authorization': `Bearer ${access_token}`,
+                            'X-Session-ID': `${session}`
+                        }
+                    };
+                    await request(options, async function (error, response) {
+                        if (error) {
+                            console.log(error);
+                        }else{
+                            res.send(JSON.parse(response.body));
+                        }
+                    });
+                }else{
+                    res.send({
+                        status: false,
+                        reason: "item is not found in Accurate"
+                    });
+                }
+            }else{
+                res.send({
+                    status: false,
+                    reason: "item is not found in Accurate"
+                });
+            }
+        }
+    });
+      
+})
 
 app.listen(port_number, function () {
     console.log('CORS-enabled web server listening on port ' + port_number)
