@@ -13,8 +13,8 @@ let access_token = '';
 let refresh_token = '';
 let session = '';
 let db_list = [];
-let Authorization_header = 'ZTI3MTQzYTktNmU4NC00MGE0LTlhYmUtNGQ1NzM2YzZlNDdkOmYxOGU2ZjRiMjE5NTUwNWFiZjZjMWZmOTZlOTJlZDY3';
-let redirect_uri = 'http://147.139.168.202:8888/';
+let Authorization_header = 'YjQzMjY2ZDUtNjQ2My00ZTcwLWE4NDUtYWY4ZmUwOThhNGU4OjA3MzAyYjQxZTRiNWQ4MjZlMjcwYmMwYThkM2NkZDg3';
+let redirect_uri = 'https://sold.co.id/accurate';
 
 app.post('/get-accurate-access-token-and-refresh-token', async function (req, res, next) {
     let code = req.query.code;
@@ -132,10 +132,11 @@ app.post('/get-db-access', async function (req, res, next) {
 
 app.post('/get-all-customers', async function (req, res, next) {
     let page = req.query.page;
+    console.log(access_token);
     console.log(session);
     var options = {
         'method': 'GET',
-        'url': `https://public.accurate.id/accurate/api/customer/list.do?sp.page=${page}&fields=id, customerNo`,
+        'url': `https://zeus.accurate.id/accurate/api/customer/list.do?sp.page=${page}&fields=id, customerNo`,
         'headers': {
           'Authorization': `Bearer ${access_token}`,
           'X-Session-ID': `${session}`
@@ -157,7 +158,7 @@ app.post('/get-all-customers-with-details', async function (req, res, next) {
     let page = req.query.page;
     var options = {
         'method': 'GET',
-        'url': `https://public.accurate.id/accurate/api/customer/list.do?sp.page=${page}&fields=id, customerNo`,
+        'url': `https://zeus.accurate.id/accurate/api/customer/list.do?sp.page=${page}&fields=id, customerNo`,
         'headers': {
           'Authorization': `Bearer ${access_token}`,
           'X-Session-ID': `${session}`
@@ -186,7 +187,7 @@ async function get_customer_details(customer_id){
     return new Promise(async (resolve, reject) => {
         var options = {
                 'method': 'GET',
-                'url': `https://public.accurate.id/accurate/api/customer/detail.do?id=${customer_id}`,
+                'url': `https://zeus.accurate.id/accurate/api/customer/detail.do?id=${customer_id}`,
                 'headers': {
                 'Authorization': `Bearer ${access_token}`,
                 'X-Session-ID': `${session}`
@@ -207,7 +208,7 @@ app.post('/add-new-customer', async function (req, res, next) {
     let customer_data = req.body.customer_data;
     var options = {
         'method': 'POST',
-        'url': `https://public.accurate.id/accurate/api/customer/save.do?name=${customer_data.name}&billStreet=${customer_data.billStreet}&billCity=${customer_data.billCity}&billProvince=${customer_data.billProvince}&billCountry=${customer_data.billCountry}&billZipCode=${customer_data.billZipCode}&currencyCode=IDR&email=${customer_data.email}&mobilePhone=${customer_data.mobilePhone}&workPhone=${customer_data.workPhone}&npwpNo=${customer_data.npwpNo}&shipStreet=${customer_data.shipStreet}&shipCity=${customer_data.shipCity}&shipProvince=${customer_data.shipProvince}&shipCountry=${customer_data.shipCountry}&shipZipCode=${customer_data.shipZipCode}&detailShipAddress[0].street=${customer_data.detailShipAddress[0].street}&detailShipAddress[0].city=${customer_data.detailShipAddress[0].city}&detailShipAddress[0].province=${customer_data.detailShipAddress[0].province}&detailShipAddress[0].country=${customer_data.detailShipAddress[0].country}&detailShipAddress[0].zipCode=${customer_data.detailShipAddress[0].zipCode}&customerNo=${customer_data.customerNo}&consignmentStore=false&description=${customer_data.description}&wpName=${customer_data.name}`,
+        'url': `https://zeus.accurate.id/accurate/api/customer/save.do?name=${customer_data.name}&billStreet=${customer_data.billStreet}&billCity=${customer_data.billCity}&billProvince=${customer_data.billProvince}&billCountry=${customer_data.billCountry}&billZipCode=${customer_data.billZipCode}&currencyCode=IDR&email=${customer_data.email}&mobilePhone=${customer_data.mobilePhone}&workPhone=${customer_data.workPhone}&npwpNo=${customer_data.npwpNo}&shipStreet=${customer_data.shipStreet}&shipCity=${customer_data.shipCity}&shipProvince=${customer_data.shipProvince}&shipCountry=${customer_data.shipCountry}&shipZipCode=${customer_data.shipZipCode}&detailShipAddress[0].street=${customer_data.detailShipAddress[0].street}&detailShipAddress[0].city=${customer_data.detailShipAddress[0].city}&detailShipAddress[0].province=${customer_data.detailShipAddress[0].province}&detailShipAddress[0].country=${customer_data.detailShipAddress[0].country}&detailShipAddress[0].zipCode=${customer_data.detailShipAddress[0].zipCode}&customerNo=${customer_data.customerNo}&consignmentStore=false&description=${customer_data.description}&wpName=${customer_data.name}`,
         'headers': {
             'X-Session-ID': `${session}`,
             'Authorization': `Bearer ${access_token}`
@@ -230,7 +231,7 @@ app.post('/get-customer-details', async function (req, res, next) {
     let total_page = 0;
     var options = {
         'method': 'GET',
-        'url': `https://public.accurate.id/accurate/api/customer/list.do?sp.page=${page}&fields=id, customerNo`,
+        'url': `https://zeus.accurate.id/accurate/api/customer/list.do?sp.page=${page}&fields=id, customerNo`,
         'headers': {
         'Authorization': `Bearer ${access_token}`,
         'X-Session-ID': `${session}`
@@ -270,7 +271,7 @@ async function loop_through_customers(page, customer_no){
     return new Promise(async (resolve, reject) => {
         var options = {
             'method': 'GET',
-            'url': `https://public.accurate.id/accurate/api/customer/list.do?sp.page=${page}&fields=id, customerNo`,
+            'url': `https://zeus.accurate.id/accurate/api/customer/list.do?sp.page=${page}&fields=id, customerNo`,
             'headers': {
             'Authorization': `Bearer ${access_token}`,
             'X-Session-ID': `${session}`
@@ -362,7 +363,7 @@ async function add_customer_data(customer_data){
     return new Promise(async (resolve, reject) => {
         var options = {
             'method': 'POST',
-            'url': `https://public.accurate.id/accurate/api/customer/save.do?id=${customer_data.id}&name=${customer_data.name}&billStreet=${customer_data.billStreet}&billCity=${customer_data.billCity}&billProvince=${customer_data.billProvince}&billCountry=${customer_data.billCountry}&billZipCode=${customer_data.billZipCode}&currencyCode=IDR&email=${customer_data.email}&mobilePhone=${customer_data.mobilePhone}&workPhone=${customer_data.workPhone}&npwpNo=${customer_data.npwpNo}&shipStreet=${customer_data.shipStreet}&shipCity=${customer_data.shipCity}&shipProvince=${customer_data.shipProvince}&shipCountry=${customer_data.shipCountry}&shipZipCode=${customer_data.shipZipCode}&detailShipAddress[0].street=${customer_data.detailShipAddress[0].street}&detailShipAddress[0].city=${customer_data.detailShipAddress[0].city}&detailShipAddress[0].province=${customer_data.detailShipAddress[0].province}&detailShipAddress[0].country=${customer_data.detailShipAddress[0].country}&detailShipAddress[0].zipCode=${customer_data.detailShipAddress[0].zipCode}&customerNo=${customer_data.customerNo}&consignmentStore=false&description=${customer_data.description}&wpName=${customer_data.name}`,
+            'url': `https://zeus.accurate.id/accurate/api/customer/save.do?id=${customer_data.id}&name=${customer_data.name}&billStreet=${customer_data.billStreet}&billCity=${customer_data.billCity}&billProvince=${customer_data.billProvince}&billCountry=${customer_data.billCountry}&billZipCode=${customer_data.billZipCode}&currencyCode=IDR&email=${customer_data.email}&mobilePhone=${customer_data.mobilePhone}&workPhone=${customer_data.workPhone}&npwpNo=${customer_data.npwpNo}&shipStreet=${customer_data.shipStreet}&shipCity=${customer_data.shipCity}&shipProvince=${customer_data.shipProvince}&shipCountry=${customer_data.shipCountry}&shipZipCode=${customer_data.shipZipCode}&detailShipAddress[0].street=${customer_data.detailShipAddress[0].street}&detailShipAddress[0].city=${customer_data.detailShipAddress[0].city}&detailShipAddress[0].province=${customer_data.detailShipAddress[0].province}&detailShipAddress[0].country=${customer_data.detailShipAddress[0].country}&detailShipAddress[0].zipCode=${customer_data.detailShipAddress[0].zipCode}&customerNo=${customer_data.customerNo}&consignmentStore=false&description=${customer_data.description}&wpName=${customer_data.name}`,
             'headers': {
                 'X-Session-ID': `${session}`,
                 'Authorization': `Bearer ${access_token}`
@@ -389,7 +390,7 @@ app.post('/get-all-vendors', async function (req, res, next) {
     let page = req.query.page;
     var options = {
         'method': 'GET',
-        'url': `https://public.accurate.id/accurate/api/vendor/list.do?sp.page=${page}`,
+        'url': `https://zeus.accurate.id/accurate/api/vendor/list.do?sp.page=${page}`,
         'headers': {
           'Authorization': `Bearer ${access_token}`,
           'X-Session-ID': `${session}`
@@ -411,7 +412,7 @@ app.post('/get-all-vendors-with-details', async function (req, res, next) {
     let page = req.query.page;
     var options = {
         'method': 'GET',
-        'url': `https://public.accurate.id/accurate/api/vendor/list.do?sp.page=${page}`,
+        'url': `https://zeus.accurate.id/accurate/api/vendor/list.do?sp.page=${page}`,
         'headers': {
           'Authorization': `Bearer ${access_token}`,
           'X-Session-ID': `${session}`
@@ -440,7 +441,7 @@ async function get_vendor_details(vendor_id){
     return new Promise(async (resolve, reject) => {
         var options = {
                 'method': 'GET',
-                'url': `https://public.accurate.id/accurate/api/vendor/detail.do?id=${vendor_id}`,
+                'url': `https://zeus.accurate.id/accurate/api/vendor/detail.do?id=${vendor_id}`,
                 'headers': {
                 'Authorization': `Bearer ${access_token}`,
                 'X-Session-ID': `${session}`
@@ -465,7 +466,7 @@ app.post('/get-all-sales-orders', async function (req, res, next) {
     console.log(session);
     var options = {
         'method': 'GET',
-        'url': `https://public.accurate.id/accurate/api/sales-order/list.do?sp.page=${page}`,
+        'url': `https://zeus.accurate.id/accurate/api/sales-order/list.do?sp.page=${page}`,
         'headers': {
           'Authorization': `Bearer ${access_token}`,
           'X-Session-ID': `${session}`
@@ -487,7 +488,7 @@ app.post('/get-all-sales-orders-with-details', async function (req, res, next) {
     let page = req.query.page;
     var options = {
         'method': 'GET',
-        'url': `https://public.accurate.id/accurate/api/sales-order/list.do?sp.page=${page}`,
+        'url': `https://zeus.accurate.id/accurate/api/sales-order/list.do?sp.page=${page}`,
         'headers': {
           'Authorization': `Bearer ${access_token}`,
           'X-Session-ID': `${session}`
@@ -516,7 +517,7 @@ async function get_sales_order_details(sales_order_id){
     return new Promise(async (resolve, reject) => {
         var options = {
                 'method': 'GET',
-                'url': `https://public.accurate.id/accurate/api/sales-order/detail.do?id=${sales_order_id}`,
+                'url': `https://zeus.accurate.id/accurate/api/sales-order/detail.do?id=${sales_order_id}`,
                 'headers': {
                 'Authorization': `Bearer ${access_token}`,
                 'X-Session-ID': `${session}`
@@ -537,7 +538,7 @@ app.post('/add-new-sales-order', async function (req, res, next) {
     let sales_order_data = req.body.sales_order_data;
     var options = {
         'method': 'POST',
-        'url': `https://public.accurate.id/accurate/api/sales-order/save.do?number=${sales_order_data.number}&poNumber=${sales_order_data.poNumber}&customerNo=${sales_order_data.customerNo}&transDate=${sales_order_data.transDate}&toAddress=${sales_order_data.toAddress}&paymentTermName=${sales_order_data.paymentTermName}&description=${sales_order_data.description}&inclusiveTax=${sales_order_data.inclusiveTax}`,
+        'url': `https://zeus.accurate.id/accurate/api/sales-order/save.do?number=${sales_order_data.number}&poNumber=${sales_order_data.poNumber}&customerNo=${sales_order_data.customerNo}&transDate=${sales_order_data.transDate}&toAddress=${sales_order_data.toAddress}&paymentTermName=${sales_order_data.paymentTermName}&description=${sales_order_data.description}&inclusiveTax=${sales_order_data.inclusiveTax}`,
         'headers': {
             'X-Session-ID': `${session}`,
             'Authorization': `Bearer ${access_token}`
@@ -565,7 +566,7 @@ app.post('/get-sales-order-details', async function (req, res, next) {
     let total_page = 0;
     var options = {
         'method': 'GET',
-        'url': `https://public.accurate.id/accurate/api/sales-order/list.do?sp.page=${page}`,
+        'url': `https://zeus.accurate.id/accurate/api/sales-order/list.do?sp.page=${page}`,
         'headers': {
             'Authorization': `Bearer ${access_token}`,
             'X-Session-ID': `${session}`
@@ -605,7 +606,7 @@ async function loop_through_sales_orders(page, sales_order_number){
     return new Promise(async (resolve, reject) => {
         var options = {
             'method': 'GET',
-            'url': `https://public.accurate.id/accurate/api/sales-order/list.do?sp.page=${page}`,
+            'url': `https://zeus.accurate.id/accurate/api/sales-order/list.do?sp.page=${page}`,
             'headers': {
             'Authorization': `Bearer ${access_token}`,
             'X-Session-ID': `${session}`
@@ -643,7 +644,7 @@ async function get_sales_order_details(sales_order_id){
     return new Promise(async (resolve, reject) => {
         var options = {
                 'method': 'GET',
-                'url': `https://public.accurate.id/accurate/api/sales-order/detail.do?id=${sales_order_id}`,
+                'url': `https://zeus.accurate.id/accurate/api/sales-order/detail.do?id=${sales_order_id}`,
                 'headers': {
                 'Authorization': `Bearer ${access_token}`,
                 'X-Session-ID': `${session}`
@@ -677,7 +678,7 @@ app.post('/delete-sales-order', async function (req, res, next) {
                     let sales_order_information = JSON.parse(response.body);
                     var options = {
                         'method': 'DELETE',
-                        'url': `https://public.accurate.id/accurate/api/sales-order/delete.do?id=${sales_order_information.id}`,
+                        'url': `https://zeus.accurate.id/accurate/api/sales-order/delete.do?id=${sales_order_information.id}`,
                         'headers': {
                             'Authorization': `Bearer ${access_token}`,
                             'X-Session-ID': `${session}`
@@ -715,7 +716,7 @@ app.post('/get-all-items', async function (req, res, next) {
     let page = req.query.page;
     var options = {
         'method': 'GET',
-        'url': `https://public.accurate.id/accurate/api/item/list.do?sp.page=${page}`,
+        'url': `https://zeus.accurate.id/accurate/api/item/list.do?sp.page=${page}`,
         'headers': {
           'Authorization': `Bearer ${access_token}`,
           'X-Session-ID': `${session}`
@@ -741,7 +742,7 @@ app.post('/get-all-items-with-details', async function (req, res, next) {
     let page = req.query.page;
     var options = {
         'method': 'GET',
-        'url': `https://public.accurate.id/accurate/api/item/list.do?sp.page=${page}`,
+        'url': `https://zeus.accurate.id/accurate/api/item/list.do?sp.page=${page}`,
         'headers': {
           'Authorization': `Bearer ${access_token}`,
           'X-Session-ID': `${session}`
@@ -774,7 +775,7 @@ async function get_item_details(item_id){
     return new Promise(async (resolve, reject) => {
         var options = {
                 'method': 'GET',
-                'url': `https://public.accurate.id/accurate/api/item/detail.do?id=${item_id}`,
+                'url': `https://zeus.accurate.id/accurate/api/item/detail.do?id=${item_id}`,
                 'headers': {
                 'Authorization': `Bearer ${access_token}`,
                 'X-Session-ID': `${session}`
@@ -795,7 +796,7 @@ app.post('/add-new-item', async function (req, res, next) {
     let item_data = req.body.item_data;
     var options = {
         'method': 'POST',
-        'url': `https://public.accurate.id/accurate/api/item/save.do?itemType=${item_data.itemType}&name=${item_data.name}&itemCategoryName=${item_data.itemCategoryName}&no=${item_data.no}&notes=${item_data.notes}&unitPrice=${item_data.unitPrice}`,
+        'url': `https://zeus.accurate.id/accurate/api/item/save.do?itemType=${item_data.itemType}&name=${item_data.name}&itemCategoryName=${item_data.itemCategoryName}&no=${item_data.no}&notes=${item_data.notes}&unitPrice=${item_data.unitPrice}`,
         'headers': {
             'X-Session-ID': `${session}`,
             'Authorization': `Bearer ${access_token}`
@@ -820,7 +821,7 @@ app.post('/edit-item', async function (req, res, next) {
     let item_data = req.body.item_data;
     var options = {
         'method': 'POST',
-        'url': `https://public.accurate.id/accurate/api/item/save.do?id=${item_data.id}&itemType=${item_data.itemType}&name=${item_data.name}&itemCategoryName=${item_data.itemCategoryName}&no=${item_data.no}&notes=${item_data.notes}&unitPrice=${item_data.unitPrice}`,
+        'url': `https://zeus.accurate.id/accurate/api/item/save.do?id=${item_data.id}&itemType=${item_data.itemType}&name=${item_data.name}&itemCategoryName=${item_data.itemCategoryName}&no=${item_data.no}&notes=${item_data.notes}&unitPrice=${item_data.unitPrice}`,
         'headers': {
             'X-Session-ID': `${session}`,
             'Authorization': `Bearer ${access_token}`
@@ -847,7 +848,7 @@ app.post('/get-item-details', async function (req, res, next) {
     let total_page = 0;
     var options = {
         'method': 'GET',
-        'url': `https://public.accurate.id/accurate/api/item/list.do?sp.page=${page}`,
+        'url': `https://zeus.accurate.id/accurate/api/item/list.do?sp.page=${page}`,
         'headers': {
             'Authorization': `Bearer ${access_token}`,
             'X-Session-ID': `${session}`
@@ -887,7 +888,7 @@ async function loop_through_items(page, item_no){
     return new Promise(async (resolve, reject) => {
         var options = {
             'method': 'GET',
-            'url': `https://public.accurate.id/accurate/api/item/list.do?sp.page=${page}`,
+            'url': `https://zeus.accurate.id/accurate/api/item/list.do?sp.page=${page}`,
             'headers': {
                 'Authorization': `Bearer ${access_token}`,
                 'X-Session-ID': `${session}`
@@ -939,7 +940,7 @@ app.post('/delete-item', async function (req, res, next) {
                     let item_information = JSON.parse(response.body);
                     var options = {
                         'method': 'DELETE',
-                        'url': `https://public.accurate.id/accurate/api/item/delete.do?id=${item_information.id}`,
+                        'url': `https://zeus.accurate.id/accurate/api/item/delete.do?id=${item_information.id}`,
                         'headers': {
                             'Authorization': `Bearer ${access_token}`,
                             'X-Session-ID': `${session}`
@@ -977,7 +978,7 @@ app.post('/get-all-payment-term', async function (req, res, next) {
     let page = req.query.page;
     var options = {
         'method': 'GET',
-        'url': `https://public.accurate.id/accurate/api/payment-term/list.do?sp.page=${page}`,
+        'url': `https://zeus.accurate.id/accurate/api/payment-term/list.do?sp.page=${page}`,
         'headers': {
           'Authorization': `Bearer ${access_token}`,
           'X-Session-ID': `${session}`
@@ -1003,7 +1004,7 @@ app.post('/get-all-payment-term-with-details', async function (req, res, next) {
     let page = req.query.page;
     var options = {
         'method': 'GET',
-        'url': `https://public.accurate.id/accurate/api/payment-term/list.do?sp.page=${page}`,
+        'url': `https://zeus.accurate.id/accurate/api/payment-term/list.do?sp.page=${page}`,
         'headers': {
           'Authorization': `Bearer ${access_token}`,
           'X-Session-ID': `${session}`
@@ -1036,7 +1037,7 @@ async function get_payment_term_details(payment_id){
     return new Promise(async (resolve, reject) => {
         var options = {
                 'method': 'GET',
-                'url': `https://public.accurate.id/accurate/api/payment-term/detail.do?id=${payment_id}`,
+                'url': `https://zeus.accurate.id/accurate/api/payment-term/detail.do?id=${payment_id}`,
                 'headers': {
                 'Authorization': `Bearer ${access_token}`,
                 'X-Session-ID': `${session}`
@@ -1057,7 +1058,7 @@ app.post('/add-new-payment-term', async function (req, res, next) {
     let payment_data = req.body.payment_data;
     var options = {
         'method': 'POST',
-        'url': `https://public.accurate.id/accurate/api/payment-term/save.do?discDays=${payment_data.discDays}&discPC=${payment_data.discPC}&name=${payment_data.name}&netDays=${payment_data.netDays}&memo=${payment_data.memo}`,
+        'url': `https://zeus.accurate.id/accurate/api/payment-term/save.do?discDays=${payment_data.discDays}&discPC=${payment_data.discPC}&name=${payment_data.name}&netDays=${payment_data.netDays}&memo=${payment_data.memo}`,
         'headers': {
             'X-Session-ID': `${session}`,
             'Authorization': `Bearer ${access_token}`
@@ -1082,7 +1083,7 @@ app.post('/edit-payment-term', async function (req, res, next) {
     let payment_data = req.body.payment_data;
     var options = {
         'method': 'POST',
-        'url': `https://public.accurate.id/accurate/api/payment-term/save.do?id=${payment_data.id}&discDays=${payment_data.discDays}&discPC=${payment_data.discPC}&name=${payment_data.name}&netDays=${payment_data.netDays}&memo=${payment_data.memo}`,
+        'url': `https://zeus.accurate.id/accurate/api/payment-term/save.do?id=${payment_data.id}&discDays=${payment_data.discDays}&discPC=${payment_data.discPC}&name=${payment_data.name}&netDays=${payment_data.netDays}&memo=${payment_data.memo}`,
         'headers': {
             'X-Session-ID': `${session}`,
             'Authorization': `Bearer ${access_token}`
